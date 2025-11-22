@@ -1,15 +1,7 @@
-import {
-  Assets,
-  Border,
-  colors,
-  ListHeader,
-  ListRow,
-  NavigationBar,
-  SelectBottomSheet,
-  Spacing,
-  Tab,
-  TextField,
-} from 'tosslib';
+import { Suspense } from '@suspensive/react';
+import { SuspenseQuery } from '@suspensive/react-query';
+import { Assets, Border, colors, ListRow, NavigationBar, SelectBottomSheet, Spacing, Tab, TextField } from 'tosslib';
+import { savingsProductsQueryOptions } from './queries/savingsCalculator.query';
 
 export function SavingsCalculatorPage() {
   return (
@@ -70,7 +62,29 @@ export function SavingsCalculatorPage() {
         }
         onClick={() => {}}
       />
-
+      <Suspense fallback={'loading...'}>
+        <SuspenseQuery {...savingsProductsQueryOptions()}>
+          {({ data: savingsProducts }) =>
+            savingsProducts.map(({ id, name, annualRate, minMonthlyAmount, maxMonthlyAmount, availableTerms }) => (
+              <ListRow
+                key={id}
+                contents={
+                  <ListRow.Texts
+                    type="3RowTypeA"
+                    top={name}
+                    topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
+                    middle={`연 이자율: ${annualRate}%`}
+                    middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
+                    bottom={`${minMonthlyAmount}원 ~ ${maxMonthlyAmount}원 | ${availableTerms}개월`}
+                    bottomProps={{ fontSize: 13, color: colors.grey600 }}
+                  />
+                }
+                onClick={() => {}}
+              />
+            ))
+          }
+        </SuspenseQuery>
+      </Suspense>
       {/* 아래는 계산 결과 탭 내용이에요. 계산 결과 탭을 구현할 때 주석을 해제해주세요. */}
       {/* <Spacing size={8} />
 
