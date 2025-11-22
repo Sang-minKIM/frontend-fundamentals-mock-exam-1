@@ -1,25 +1,89 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Suspense } from '@suspensive/react';
 import { SuspenseQuery } from '@suspensive/react-query';
+import { Controller, useForm } from 'react-hook-form';
 import { Border, NavigationBar, SelectBottomSheet, Spacing, Tab, TextField } from 'tosslib';
-import { savingsProductsQueryOptions } from './queries/savingsCalculator.query';
+import { formatStringWithComma, removeNonNumeric } from 'utils/formatNumberInput';
 import { SavingsProducts } from './components/SavingsProducts';
+import { SavingsCalculatorFormSchema, type SavingsCalculatorForm } from './types/savingsCalculatorForm';
+import { savingsProductsQueryOptions } from './queries/savingsCalculator.query';
 
 export function SavingsCalculatorPage() {
+  const {
+    control,
+    formState: { errors },
+  } = useForm<SavingsCalculatorForm>({
+    resolver: zodResolver(SavingsCalculatorFormSchema),
+    defaultValues: {
+      targetAmount: '',
+      monthlyAmount: '',
+      term: 12,
+      selectedProductId: '',
+    },
+  });
+
   return (
     <>
       <NavigationBar title="적금 계산기" />
 
       <Spacing size={16} />
 
-      <TextField label="목표 금액" placeholder="목표 금액을 입력하세요" suffix="원" />
+      <Controller
+        name="targetAmount"
+        control={control}
+        render={({ field }) => (
+          <>
+            <TextField
+              label="목표 금액"
+              placeholder="목표 금액을 입력하세요"
+              suffix="원"
+              value={formatStringWithComma(field.value)}
+              onChange={e => {
+                const numericValue = removeNonNumeric(e.target.value);
+                field.onChange(numericValue);
+              }}
+            />
+            {errors.targetAmount && <div>{errors.targetAmount.message}</div>}
+          </>
+        )}
+      />
       <Spacing size={16} />
-      <TextField label="월 납입액" placeholder="희망 월 납입액을 입력하세요" suffix="원" />
+      <Controller
+        name="monthlyAmount"
+        control={control}
+        render={({ field }) => (
+          <>
+            <TextField
+              label="월 납입액"
+              placeholder="희망 월 납입액을 입력하세요"
+              suffix="원"
+              value={formatStringWithComma(field.value)}
+              onChange={e => {
+                const numericValue = removeNonNumeric(e.target.value);
+                field.onChange(numericValue);
+              }}
+            />
+            {errors.monthlyAmount && <div>{errors.monthlyAmount.message}</div>}
+          </>
+        )}
+      />
       <Spacing size={16} />
-      <SelectBottomSheet label="저축 기간" title="저축 기간을 선택해주세요" value={12} onChange={() => {}}>
-        <SelectBottomSheet.Option value={6}>6개월</SelectBottomSheet.Option>
-        <SelectBottomSheet.Option value={12}>12개월</SelectBottomSheet.Option>
-        <SelectBottomSheet.Option value={24}>24개월</SelectBottomSheet.Option>
-      </SelectBottomSheet>
+      <Controller
+        name="term"
+        control={control}
+        render={({ field }) => (
+          <SelectBottomSheet
+            label="저축 기간"
+            title="저축 기간을 선택해주세요"
+            value={field.value}
+            onChange={value => field.onChange(value as number)}
+          >
+            <SelectBottomSheet.Option value={6}>6개월</SelectBottomSheet.Option>
+            <SelectBottomSheet.Option value={12}>12개월</SelectBottomSheet.Option>
+            <SelectBottomSheet.Option value={24}>24개월</SelectBottomSheet.Option>
+          </SelectBottomSheet>
+        )}
+      />
 
       <Spacing size={24} />
       <Border height={16} />
