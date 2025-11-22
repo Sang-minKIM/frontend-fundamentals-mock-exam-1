@@ -7,6 +7,9 @@ interface SavingsProductProps {
 }
 
 export function SavingsProducts({ savingsProducts }: SavingsProductProps) {
+  if (savingsProducts.length === 0) {
+    return <div>조건에 맞는 적금 상품이 없어요.</div>;
+  }
   return (
     <ul>
       <ListRow
