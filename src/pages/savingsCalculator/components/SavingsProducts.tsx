@@ -1,46 +1,21 @@
 import { Assets, colors, ListRow } from 'tosslib';
 import { SavingsProduct } from '../queries/savingsCalculator.type';
 import { formatNumberWithComma } from 'utils/formatNumberInput';
+import { useFormContext } from 'react-hook-form';
 
 interface SavingsProductProps {
   savingsProducts: SavingsProduct[];
 }
 
 export function SavingsProducts({ savingsProducts }: SavingsProductProps) {
+  const { watch, setValue } = useFormContext();
+
   if (savingsProducts.length === 0) {
     return <div>조건에 맞는 적금 상품이 없어요.</div>;
   }
+
   return (
     <ul>
-      <ListRow
-        contents={
-          <ListRow.Texts
-            type="3RowTypeA"
-            top={'기본 정기적금'}
-            topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
-            middle={'연 이자율: 3.2%'}
-            middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-            bottom={'100,000원 ~ 500,000원 | 12개월'}
-            bottomProps={{ fontSize: 13, color: colors.grey600 }}
-          />
-        }
-        right={<Assets.Icon name="icon-check-circle-green" />}
-        onClick={() => {}}
-      />
-      <ListRow
-        contents={
-          <ListRow.Texts
-            type="3RowTypeA"
-            top={'고급 정기적금'}
-            topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
-            middle={'연 이자율: 2.8%'}
-            middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-            bottom={'50,000원 ~ 1,000,000원 | 24개월'}
-            bottomProps={{ fontSize: 13, color: colors.grey600 }}
-          />
-        }
-        onClick={() => {}}
-      />
       {savingsProducts.map(({ id, name, annualRate, minMonthlyAmount, maxMonthlyAmount, availableTerms }) => (
         <ListRow
           key={id}
@@ -55,7 +30,8 @@ export function SavingsProducts({ savingsProducts }: SavingsProductProps) {
               bottomProps={{ fontSize: 13, color: colors.grey600 }}
             />
           }
-          onClick={() => {}}
+          right={watch('selectedProductId') === id ? <Assets.Icon name="icon-check-circle-green" /> : undefined}
+          onClick={() => setValue('selectedProductId', id, { shouldValidate: true })}
         />
       ))}
     </ul>

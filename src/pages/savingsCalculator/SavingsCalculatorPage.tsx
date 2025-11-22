@@ -1,20 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Suspense } from '@suspensive/react';
 import { SuspenseQuery } from '@suspensive/react-query';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { Border, NavigationBar, SelectBottomSheet, Spacing, Tab, TextField } from 'tosslib';
 import { formatStringWithComma, removeNonNumeric } from 'utils/formatNumberInput';
 import { SavingsProducts } from './components/SavingsProducts';
 import { savingsProductsQueryOptions } from './queries/savingsCalculator.query';
 import { filterSavingsProducts } from './services/filterSavingsProducts';
 import { SavingsCalculatorFormSchema, type SavingsCalculatorForm } from './types/savingsCalculatorForm';
+import { SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE } from './services/savingsCalculatorFormDefaultValue';
 
 export function SavingsCalculatorPage() {
-  const {
-    control,
-    watch,
-    formState: { errors },
-  } = useForm<SavingsCalculatorForm>({
+  const formContext = useForm<SavingsCalculatorForm>({
     resolver: zodResolver(SavingsCalculatorFormSchema),
     defaultValues: {
       targetAmount: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.targetAmount,
@@ -24,8 +21,15 @@ export function SavingsCalculatorPage() {
     },
   });
 
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = formContext;
+
   return (
-    <>
+    <FormProvider {...formContext}>
       <NavigationBar title="적금 계산기" />
 
       <Spacing size={16} />
@@ -63,6 +67,9 @@ export function SavingsCalculatorPage() {
               onChange={e => {
                 const numericValue = removeNonNumeric(e.target.value);
                 field.onChange(numericValue);
+                setValue('selectedProductId', SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.selectedProductId, {
+                  shouldValidate: true,
+                });
               }}
             />
             {errors.monthlyAmount && <div>{errors.monthlyAmount.message}</div>}
@@ -78,7 +85,12 @@ export function SavingsCalculatorPage() {
             label="저축 기간"
             title="저축 기간을 선택해주세요"
             value={field.value}
-            onChange={value => field.onChange(value as number)}
+            onChange={value => {
+              field.onChange(value);
+              setValue('selectedProductId', SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.selectedProductId, {
+                shouldValidate: true,
+              });
+            }}
           >
             <SelectBottomSheet.Option value={6}>6개월</SelectBottomSheet.Option>
             <SelectBottomSheet.Option value={12}>12개월</SelectBottomSheet.Option>
@@ -191,6 +203,6 @@ export function SavingsCalculatorPage() {
 
       {/* 아래는 사용자가 적금 상품을 선택하지 않고 계산 결과 탭을 선택했을 때 출력해주세요. */}
       {/* <ListRow contents={<ListRow.Texts type="1RowTypeA" top="상품을 선택해주세요." />} /> */}
-    </>
+    </FormProvider>
   );
 }
