@@ -17,10 +17,10 @@ export function SavingsCalculatorPage() {
   } = useForm<SavingsCalculatorForm>({
     resolver: zodResolver(SavingsCalculatorFormSchema),
     defaultValues: {
-      targetAmount: '',
-      monthlyAmount: '',
-      term: 12,
-      selectedProductId: '',
+      targetAmount: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.targetAmount,
+      monthlyAmount: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.monthlyAmount,
+      term: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.term,
+      selectedProductId: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.selectedProductId,
     },
   });
 
