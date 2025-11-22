@@ -134,7 +134,13 @@ export function SavingsCalculatorPage() {
           </SuspenseQuery>
         </Suspense>
       )}
-      {selectedTab === 'results' && <CalculationResult />}
+      {selectedTab === 'results' && (
+        <Suspense fallback={'loading...'}>
+          <SuspenseQuery {...savingsProductsQueryOptions()}>
+            {({ data: allProducts }) => <CalculationResult allProducts={allProducts} />}
+          </SuspenseQuery>
+        </Suspense>
+      )}
     </FormProvider>
   );
 }

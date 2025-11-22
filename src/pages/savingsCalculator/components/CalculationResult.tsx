@@ -1,6 +1,48 @@
+import { useFormContext } from 'react-hook-form';
 import { Border, colors, ListHeader, ListRow, Spacing } from 'tosslib';
+import { formatNumberWithComma } from 'utils/formatNumberInput';
+import { SavingsProduct } from '../queries/savingsCalculator.type';
+import { SavingsCalculatorForm } from '../types/savingsCalculatorForm';
+import {
+  calculateExpectedAmount,
+  calculateGapFromTarget,
+  calculateRecommendedMonthlyAmount,
+} from '../services/calculateSavings';
 
-export function CalculationResult() {
+interface CalculationResultProps {
+  allProducts: SavingsProduct[];
+}
+
+export function CalculationResult({ allProducts }: CalculationResultProps) {
+  const { watch } = useFormContext<SavingsCalculatorForm>();
+
+  const selectedProduct = allProducts.find((product: SavingsProduct) => product.id === watch('selectedProductId'));
+
+  if (!selectedProduct) {
+    return <ListRow contents={<ListRow.Texts type="1RowTypeA" top="상품을 선택해주세요." />} />;
+  }
+
+  const term = watch('term');
+  const targetAmountNumber = Number(watch('targetAmount'));
+  const monthlyAmountNumber = Number(watch('monthlyAmount'));
+
+  const expectedAmount = calculateExpectedAmount({
+    monthlyAmount: monthlyAmountNumber,
+    term,
+    annualRate: selectedProduct.annualRate,
+  });
+
+  const gapFromTarget = calculateGapFromTarget({
+    targetAmount: targetAmountNumber,
+    expectedAmount,
+  });
+
+  const recommendedMonthlyAmount = calculateRecommendedMonthlyAmount({
+    targetAmount: targetAmountNumber,
+    term,
+    annualRate: selectedProduct.annualRate,
+  });
+
   return (
     <>
       <Spacing size={8} />
@@ -11,7 +53,7 @@ export function CalculationResult() {
             type="2RowTypeA"
             top="예상 수익 금액"
             topProps={{ color: colors.grey600 }}
-            bottom={`1,000,000원`}
+            bottom={`${formatNumberWithComma(expectedAmount)}원`}
             bottomProps={{ fontWeight: 'bold', color: colors.blue600 }}
           />
         }
@@ -22,7 +64,7 @@ export function CalculationResult() {
             type="2RowTypeA"
             top="목표 금액과의 차이"
             topProps={{ color: colors.grey600 }}
-            bottom={`-500,000원`}
+            bottom={`${formatNumberWithComma(gapFromTarget)}원`}
             bottomProps={{ fontWeight: 'bold', color: colors.blue600 }}
           />
         }
@@ -33,7 +75,7 @@ export function CalculationResult() {
             type="2RowTypeA"
             top="추천 월 납입 금액"
             topProps={{ color: colors.grey600 }}
-            bottom={`100,000원`}
+            bottom={`${formatNumberWithComma(recommendedMonthlyAmount)}원`}
             bottomProps={{ fontWeight: 'bold', color: colors.blue600 }}
           />
         }
@@ -50,20 +92,6 @@ export function CalculationResult() {
         contents={
           <ListRow.Texts
             type="3RowTypeA"
-            top={'기본 정기적금'}
-            topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
-            middle={`연 이자율: 3.2%`}
-            middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-            bottom={`100,000원 ~ 500,000원 | 12개월`}
-            bottomProps={{ fontSize: 13, color: colors.grey600 }}
-          />
-        }
-        onClick={() => {}}
-      />
-      <ListRow
-        contents={
-          <ListRow.Texts
-            type="3RowTypeA"
             top={'고급 정기적금'}
             topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
             middle={`연 이자율: 2.8%`}
@@ -76,8 +104,6 @@ export function CalculationResult() {
       />
 
       <Spacing size={40} />
-      {/* 아래는 사용자가 적금 상품을 선택하지 않고 계산 결과 탭을 선택했을 때 출력해주세요. */}
-      {/* <ListRow contents={<ListRow.Texts type="1RowTypeA" top="상품을 선택해주세요." />} /> */}
     </>
   );
 }
