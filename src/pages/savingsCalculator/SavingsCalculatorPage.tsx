@@ -5,12 +5,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { Border, NavigationBar, SelectBottomSheet, Spacing, Tab, TextField } from 'tosslib';
 import { formatStringWithComma, removeNonNumeric } from 'utils/formatNumberInput';
 import { SavingsProducts } from './components/SavingsProducts';
-import { SavingsCalculatorFormSchema, type SavingsCalculatorForm } from './types/savingsCalculatorForm';
 import { savingsProductsQueryOptions } from './queries/savingsCalculator.query';
+import { filterSavingsProducts } from './services/filterSavingsProducts';
+import { SavingsCalculatorFormSchema, type SavingsCalculatorForm } from './types/savingsCalculatorForm';
 
 export function SavingsCalculatorPage() {
   const {
     control,
+    watch,
     formState: { errors },
   } = useForm<SavingsCalculatorForm>({
     resolver: zodResolver(SavingsCalculatorFormSchema),
@@ -99,7 +101,16 @@ export function SavingsCalculatorPage() {
       </Tab>
 
       <Suspense fallback={'loading...'}>
-        <SuspenseQuery {...savingsProductsQueryOptions()}>
+        <SuspenseQuery
+          {...savingsProductsQueryOptions()}
+          select={data =>
+            filterSavingsProducts({
+              products: data,
+              monthlyAmount: watch('monthlyAmount'),
+              term: watch('term'),
+            })
+          }
+        >
           {({ data: savingsProducts }) => <SavingsProducts savingsProducts={savingsProducts} />}
         </SuspenseQuery>
       </Suspense>
