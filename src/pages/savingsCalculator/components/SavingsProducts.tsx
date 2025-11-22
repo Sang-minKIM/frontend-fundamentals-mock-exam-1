@@ -1,6 +1,6 @@
 import { Assets, colors, ListRow } from 'tosslib';
 import { SavingsProduct } from '../queries/savingsCalculator.type';
-import { commaNumber } from 'utils/commaNumber';
+import { formatNumberWithComma } from 'utils/formatNumberInput';
 
 interface SavingsProductProps {
   savingsProducts: SavingsProduct[];
@@ -51,7 +51,7 @@ export function SavingsProducts({ savingsProducts }: SavingsProductProps) {
               topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
               middle={`연 이자율: ${annualRate}%`}
               middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-              bottom={`${commaNumber(minMonthlyAmount)}원 ~ ${commaNumber(maxMonthlyAmount)}원 | ${availableTerms}개월`}
+              bottom={`${formatNumberWithComma(minMonthlyAmount)}원 ~ ${formatNumberWithComma(maxMonthlyAmount)}원 | ${availableTerms}개월`}
               bottomProps={{ fontSize: 13, color: colors.grey600 }}
             />
           }
