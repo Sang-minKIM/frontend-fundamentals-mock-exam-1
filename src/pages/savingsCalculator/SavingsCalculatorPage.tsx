@@ -136,8 +136,17 @@ export function SavingsCalculatorPage() {
       )}
       {selectedTab === 'results' && (
         <Suspense fallback={'loading...'}>
-          <SuspenseQuery {...savingsProductsQueryOptions()}>
-            {({ data: allProducts }) => <CalculationResult allProducts={allProducts} />}
+          <SuspenseQuery
+            {...savingsProductsQueryOptions()}
+            select={data =>
+              filterSavingsProducts({
+                products: data,
+                monthlyAmount: watch('monthlyAmount'),
+                term: watch('term'),
+              })
+            }
+          >
+            {({ data: savingsProducts }) => <CalculationResult savingsProducts={savingsProducts} />}
           </SuspenseQuery>
         </Suspense>
       )}
