@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Suspense } from '@suspensive/react';
 import { SuspenseQuery } from '@suspensive/react-query';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { Border, NavigationBar, SelectBottomSheet, Spacing, Tab, TextField } from 'tosslib';
-import { formatStringWithComma, removeNonNumeric } from 'utils/formatNumberInput';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Border, NavigationBar, Spacing, Tab } from 'tosslib';
 import { SavingsProducts } from './components/SavingsProducts';
 import { savingsProductsQueryOptions } from './queries/savingsCalculator.query';
 import { filterSavingsProducts } from './services/filterSavingsProducts';
@@ -11,6 +10,9 @@ import { SavingsCalculatorFormSchema, type SavingsCalculatorForm } from './types
 import { SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE } from './services/savingsCalculatorFormDefaultValue';
 import { useState } from 'react';
 import { CalculationResult } from './components/CalculationResult';
+import { TargetAmountField } from './components/TargetAmountField';
+import { MonthlyAmountField } from './components/MonthlyAmountField';
+import { SavingsTermField } from './components/SavingsTermField';
 
 type SelectedTab = 'products' | 'results';
 
@@ -25,14 +27,10 @@ export function SavingsCalculatorPage() {
       term: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.term,
       selectedProductId: SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.selectedProductId,
     },
+    mode: 'onChange',
   });
 
-  const {
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = formContext;
+  const { watch } = formContext;
 
   return (
     <FormProvider {...formContext}>
@@ -40,70 +38,11 @@ export function SavingsCalculatorPage() {
 
       <Spacing size={16} />
 
-      <Controller
-        name="targetAmount"
-        control={control}
-        render={({ field }) => (
-          <>
-            <TextField
-              label="목표 금액"
-              placeholder="목표 금액을 입력하세요"
-              suffix="원"
-              value={formatStringWithComma(field.value)}
-              onChange={e => {
-                const numericValue = removeNonNumeric(e.target.value);
-                field.onChange(numericValue);
-              }}
-            />
-            {errors.targetAmount && <div>{errors.targetAmount.message}</div>}
-          </>
-        )}
-      />
+      <TargetAmountField />
       <Spacing size={16} />
-      <Controller
-        name="monthlyAmount"
-        control={control}
-        render={({ field }) => (
-          <>
-            <TextField
-              label="월 납입액"
-              placeholder="희망 월 납입액을 입력하세요"
-              suffix="원"
-              value={formatStringWithComma(field.value)}
-              onChange={e => {
-                const numericValue = removeNonNumeric(e.target.value);
-                field.onChange(numericValue);
-                setValue('selectedProductId', SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.selectedProductId, {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.monthlyAmount && <div>{errors.monthlyAmount.message}</div>}
-          </>
-        )}
-      />
+      <MonthlyAmountField />
       <Spacing size={16} />
-      <Controller
-        name="term"
-        control={control}
-        render={({ field }) => (
-          <SelectBottomSheet
-            label="저축 기간"
-            title="저축 기간을 선택해주세요"
-            value={field.value}
-            onChange={value => {
-              field.onChange(value);
-              setValue('selectedProductId', SAVINGS_CALCULATOR_FORM_DEFAULT_VALUE.selectedProductId, {
-                shouldValidate: true,
-              });
-            }}
-          >
-            <SelectBottomSheet.Option value={6}>6개월</SelectBottomSheet.Option>
-            <SelectBottomSheet.Option value={12}>12개월</SelectBottomSheet.Option>
-            <SelectBottomSheet.Option value={24}>24개월</SelectBottomSheet.Option>
-          </SelectBottomSheet>
-        )}
-      />
+      <SavingsTermField />
 
       <Spacing size={24} />
       <Border height={16} />
@@ -134,6 +73,7 @@ export function SavingsCalculatorPage() {
           </SuspenseQuery>
         </Suspense>
       )}
+
       {selectedTab === 'results' && (
         <Suspense fallback={'loading...'}>
           <SuspenseQuery
