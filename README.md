@@ -14,6 +14,23 @@ yarn dev
 - `@hookform/resolvers`: react-hook-form과 zod 연동
 - `suspensive`: Errorboundary 설정, Delay로 짧은 로딩 시간인 경우 로딩 화면을 보여주지 않고 컴포넌트 노출 시점 조절
 
+## 프로젝트 구조
+
+```
+src/
+├── pages/
+│   ├── savingsCalculator/       # 페이지 컴포넌트들을 도메인별로 구성
+│   │   ├── components/          # savingsCalculator 하위 컴포넌트
+│   │   ├── queries/             # 서버 상태 관리 레이어. queryKey, endpoint, queryOption, response schema 포함
+│   │   ├── services/            # 비즈니스 로직 레이어. 순수 함수 형태로 구현된 계산, 필터링, 변환 등의 도메인 로직
+│   │   └── types/               # 타입 정의. 폼 상태 타입 등 클라이언트 상태의 타입
+│   └── Routes.tsx
+├── providers/                   # 전역 provider
+└── utils/                       # 유틸리티 함수
+```
+
+> **참고**: 비즈니스 로직을 React Hook 형태로 구현해야 하는 경우에는 `hooks/` 폴더를 사용합니다. 현재 프로젝트에서는 순수 함수 형태로 충분하므로 `services/` 폴더를 사용했습니다.
+
 ## 요구사항 분석 및 가설
 
 ### 입력 필드 Validation 및 계산 결과 탭 접근 제어
