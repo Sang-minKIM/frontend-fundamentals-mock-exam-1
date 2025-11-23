@@ -1,5 +1,16 @@
+import { useFormContext } from 'react-hook-form';
 import { ListRow } from 'tosslib';
+import { SavingsCalculatorForm } from '../types/savingsCalculatorForm';
 
 export function CalculationResultEmptyProduct() {
-  return <ListRow contents={<ListRow.Texts type="1RowTypeA" top="상품을 선택해주세요." />} />;
+  const {
+    formState: { errors },
+  } = useFormContext<SavingsCalculatorForm>();
+  return (
+    <ListRow
+      contents={
+        <ListRow.Texts type="1RowTypeA" top={errors.selectedProductId?.message ?? '선택된 상품을 찾을 수 없습니다.'} />
+      }
+    />
+  );
 }

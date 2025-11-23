@@ -21,7 +21,7 @@ export function CalculationResult({ savingsProducts }: CalculationResultProps) {
     <>
       <Spacing size={8} />
 
-      {!selectedProduct ? (
+      {selectedProduct === undefined ? (
         <CalculationResultEmptyProduct />
       ) : (
         <>
